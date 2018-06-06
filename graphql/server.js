@@ -33,12 +33,12 @@ const resolvers = {
       .then(r => r.data)
   },
   Mutation: {
-    createTask: (obj, input) =>
+    createTask: (obj, args) =>
       axios.create({httpsAgent})
-        .post('https://localhost:5001/api/tasks', input)
+        .post('https://localhost:5001/api/tasks', args.input)
         .then(r => axios.create({httpsAgent}).get(r.headers.location))
         .then(r => r.data)
-        .then(task => {task})
+        .then(task => ({task}))
   }
 };
 
