@@ -15,14 +15,23 @@ const typeDefs = `
   }
   
   type Mutation {
-    createTask(input: TaskInput!) : CreateTaskResult
+    completeTask(input: CompleteTaskInput!) : CompleteTaskResult
+    createTask(input: CreateTaskInput!) : CreateTaskResult
+    deleteTaskById(input: ID!) : DeleteTaskResult
+    updateTaskName(input: UpdateTaskNameInput!) : UpdateTaskNameResult
   }
 
   type Task { id: ID, name: String, isComplete: Boolean, completionDate: String }
 
+  type CompleteTaskResult { task: Task }
   type CreateTaskResult { task: Task }
+  type DeleteTaskResult { task: Task }
+  type UpdateTaskNameResult { task: Task }
 
-  input TaskInput { name: String }
+  input CompleteTaskInput { id: ID! }
+  input CreateTaskInput { name: String }
+  input DeleteTaskByIdInput { id: ID! }
+  input UpdateTaskNameInput { id: ID!, name: String }
 `;
 
 // The resolvers
@@ -37,6 +46,33 @@ const resolvers = {
       axios.create({httpsAgent})
         .post('https://localhost:5001/api/tasks', args.input)
         .then(r => axios.create({httpsAgent}).get(r.headers.location))
+        .then(r => r.data)
+        .then(task => ({task})),
+
+    completeTask: (obj, args) => 
+      axios.create({httpsAgent})
+        .get(`https://localhost:5001/api/tasks/${args.input.id}`)
+        .then(r => Object.assign({}, r.data, {isComplete: true}))
+        .then(task => axios.create({httpsAgent})
+          .put(`https://localhost:5001/api/tasks/${args.input.id}`, task))
+        .then(() => axios.create({httpsAgent})
+          .get(`https://localhost:5001/api/tasks/${args.input.id}`))
+        .then(r => r.data)
+        .then(task => ({task})),
+
+    deleteTaskById: (obj, args) =>
+      axios.create({httpsAgent})
+        .delete(`https://localhost:5001/api/tasks/${args.input}`)
+        .then(() => ({})),
+
+    updateTaskName: (obj, args) => 
+      axios.create({httpsAgent})
+        .get(`https://localhost:5001/api/tasks/${args.input.id}`)
+        .then(r => Object.assign({}, r.data, args.input))
+        .then(task => axios.create({httpsAgent})
+          .put(`https://localhost:5001/api/tasks/${args.input.id}`, task))
+        .then(() => axios.create({httpsAgent})
+          .get(`https://localhost:5001/api/tasks/${args.input.id}`))
         .then(r => r.data)
         .then(task => ({task}))
   }
