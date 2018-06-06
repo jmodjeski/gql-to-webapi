@@ -44,7 +44,7 @@ namespace Data.Api.Controllers
 
         // PUT api/tasks/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] TaskItem value)
+        public void Put(long id, [FromBody] TaskItem value)
         {
             value.Id = id;
             _context.Update(value);
@@ -53,7 +53,7 @@ namespace Data.Api.Controllers
 
         // DELETE api/tasks/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void Delete(long id)
         {
             var task = _context.Tasks.Find(id);
             _context.Tasks.Remove(task);
