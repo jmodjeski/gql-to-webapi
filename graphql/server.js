@@ -2,24 +2,44 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { graphqlExpress, graphiqlExpress } = require('apollo-server-express');
 const { makeExecutableSchema } = require('graphql-tools');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const https = require('https');
-const agent = new https.Agent({
-    rejectUnauthorized: false
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
 })
 
 // The GraphQL schema in string form
 const typeDefs = `
-  type Query { tasks: [Task] }
+  type Query { 
+    tasks: [Task] 
+  }
+  
+  type Mutation {
+    createTask(input: TaskInput!) : CreateTaskResult
+  }
+
   type Task { id: ID, name: String, isComplete: Boolean, completionDate: String }
+
+  type CreateTaskResult { task: Task }
+
+  input TaskInput { name: String }
 `;
 
 // The resolvers
 const resolvers = {
-  Query: { tasks: () => 
-    fetch('https://localhost:5001/api/tasks/', {agent})
-        .then(r => r.json()) 
-    },
+  Query: { 
+    tasks: () => axios.create({httpsAgent})
+      .get('https://localhost:5001/api/tasks/')
+      .then(r => r.data)
+  },
+  Mutation: {
+    createTask: (obj, input) =>
+      axios.create({httpsAgent})
+        .post('https://localhost:5001/api/tasks', input)
+        .then(r => axios.create({httpsAgent}).get(r.headers.location))
+        .then(r => r.data)
+        .then(task => {task})
+  }
 };
 
 // Put together a schema

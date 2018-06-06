@@ -27,7 +27,7 @@ namespace Data.Api.Controllers
 
         // GET api/tasks/5
         [HttpGet("{id}")]
-        public ActionResult<TaskItem> Get(int id)
+        public ActionResult<TaskItem> Get(long id)
         {
             var task = _context.Tasks.Find(id);
             if (task == null) return NotFound();
@@ -36,10 +36,11 @@ namespace Data.Api.Controllers
 
         // POST api/tasks
         [HttpPost]
-        public void Post([FromBody] TaskItem value)
+        public ActionResult Post([FromBody] TaskItem value)
         {
             _context.Tasks.Add(value);
             _context.SaveChanges();
+            return CreatedAtAction("Get", new { id = value.Id }, null);
         }
 
         // PUT api/tasks/5
