@@ -28,7 +28,7 @@ namespace Data.Api
         {
             var connectionString = Configuration.GetConnectionString("DataContext");
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddEntityFrameworkNpgsql().AddDbContext<Data.Api.DataContext>(options => options.UseNpgsql(connectionString));
+            services.AddEntityFrameworkNpgsql().AddDbContext<DataContext>(options => options.UseNpgsql(connectionString));
         
         }
 

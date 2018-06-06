@@ -11,56 +11,53 @@ namespace Data.Api.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
+        private readonly DataContext _context;
+
+        public TasksController(DataContext context)
+        {
+            _context = context;
+        }
+
         // GET api/tasks
         [HttpGet]
         public ActionResult<IEnumerable<TaskItem>> Get()
         {
-            using(var db = new DataContext()) {
-                return db.Tasks;
-            }
+            return _context.Tasks.ToList();
         }
 
         // GET api/tasks/5
         [HttpGet("{id}")]
         public ActionResult<TaskItem> Get(int id)
         {
-            using(var db = new DataContext()) {
-                var task = db.Tasks.Find(id);
-                if (task == null) return NotFound();
-                return task;
-            }
+            var task = _context.Tasks.Find(id);
+            if (task == null) return NotFound();
+            return task;
         }
 
         // POST api/tasks
         [HttpPost]
         public void Post([FromBody] TaskItem value)
         {
-            using(var db = new DataContext()) {
-                db.Tasks.Add(value);
-                db.SaveChanges();
-            }
+            _context.Tasks.Add(value);
+            _context.SaveChanges();
         }
 
         // PUT api/tasks/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] TaskItem value)
         {
-            using(var db = new DataContext()) {
-                value.Id = id;
-                db.Update(value);
-                db.SaveChanges();
-            }
+            value.Id = id;
+            _context.Update(value);
+            _context.SaveChanges();
         }
 
         // DELETE api/tasks/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            using(var db = new DataContext()) {
-                var task = db.Tasks.Find(id);
-                db.Tasks.Remove(task);
-                db.SaveChanges();
-            }
+            var task = _context.Tasks.Find(id);
+            _context.Tasks.Remove(task);
+            _context.SaveChanges();
         }
     }
 }

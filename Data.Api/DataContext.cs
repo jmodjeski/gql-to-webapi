@@ -12,7 +12,6 @@ namespace Data.Api {
         // and add this to appSettings.json
         // "ConnectionStrings": { "BlogContext": "Server=localhost;Database=blog" }
 
-        public DataContext() : base() {}
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         public DbSet<TaskItem> Tasks { get; set; }     
